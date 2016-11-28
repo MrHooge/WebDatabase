@@ -28,6 +28,7 @@ function initDatabase() {
 			}
 			console.log(keys);
 
+			// 创建表格 插入数据
 			/*db.transaction(function (context) {
 	           context.executeSql('CREATE TABLE IF NOT EXISTS access_log ('+ keys +')');
 	           for (var i = 0; i < len; i++) {
