@@ -8,7 +8,7 @@ function initDatabase() {
         alert("您的浏览器不支持HTML5本地数据库");
         return;
     }
-    var dataObj = "select * from tooth limit 300;"
+    var dataObj = "select * from access_log;"
 
 	$.ajax({
 	    type: 'GET',
@@ -28,11 +28,8 @@ function initDatabase() {
 			}
 			console.log(keys);
 
-			db.transaction(function (context) {
-
-				
-
-	           context.executeSql('CREATE TABLE IF NOT EXISTS tooth ('+ keys +')');
+			/*db.transaction(function (context) {
+	           context.executeSql('CREATE TABLE IF NOT EXISTS access_log ('+ keys +')');
 	           for (var i = 0; i < len; i++) {
 					console.log(data[i]);
 					var datas = '', val = '';
@@ -52,10 +49,10 @@ function initDatabase() {
 							}
 						}
 					}
-					context.executeSql('INSERT INTO tooth ('+keys+') VALUES ('+datas+')');
+					context.executeSql('INSERT INTO access_log ('+keys+') VALUES ('+datas+')');
 				}
 	           
-         	});
+         	});*/
 	    }
 	});
 }
@@ -66,3 +63,86 @@ function getCurrentDb() {
     return db;
 }
 initDatabase()
+
+/**
+ * 链接查询测试
+ * innerJoin(db)		内联链接
+ * leftJoin(db)			左连接
+ * rightJoin(db)		右连接
+ * union(db)			联合（去重）
+ * unionAll(db)			联合（不去重）
+ */
+function innerJoin(){
+	var db = getCurrentDb()
+	db.transaction(function (context) {
+		context.executeSql('SELECT Websites.name, access_log.count,access_log.date FROM Websites INNER JOIN access_log ON Websites.id=access_log.site_id ORDER BY access_log.count;', [], function (err, result){
+			// console.log(result);
+			var rows = result.rows, i;
+			var len = rows.length
+			console.log('innerJoin:');
+			for(i = 0; i < len; i++){
+				console.log(rows[i]);
+			}
+		});
+	})
+}
+
+function leftJoin(){
+	var db = getCurrentDb()
+	db.transaction(function (context) {
+		context.executeSql('SELECT Websites.name, access_log.count, access_log.date FROM Websites LEFT JOIN access_log ON Websites.id=access_log.site_id ORDER BY access_log.count DESC;', [], function (err, result){
+			// console.log(result);
+			var rows = result.rows, i;
+			var len = rows.length
+			console.log('leftJoin:');
+			for(i = 0; i < len; i++){
+				console.log(rows[i]);
+			}
+		});
+	})
+}
+
+function rightJoin(){
+	var db = getCurrentDb()
+	db.transaction(function (context) {
+		context.executeSql('SELECT Websites.name, access_log.count, access_log.date FROM access_log RIGHT JOIN Websites ON access_log.site_id=Websites.id ORDER BY access_log.count DESC;', [], function (err, result){
+			// console.log(result);
+			var rows = result.rows, i;
+			var len = rows.length
+			console.log('rightJoin:');
+			for(i = 0; i < len; i++){
+				console.log(rows[i]);
+			}
+		});
+	})
+}
+
+function union(){
+	var db = getCurrentDb()
+	db.transaction(function (context) {
+		context.executeSql('SELECT country FROM Websites UNION SELECT country FROM apps ORDER BY country;', [], function (err, result){
+			// console.log(result);
+			var rows = result.rows, i;
+			var len = rows.length
+			console.log('union:');
+			for(i = 0; i < len; i++){
+				console.log(rows[i]);
+			}
+		});
+	})
+}
+
+function unionAll(){
+	var db = getCurrentDb()
+	db.transaction(function (context) {
+		context.executeSql('SELECT country FROM Websites UNION ALL SELECT country FROM apps ORDER BY country;', [], function (err, result){
+			// console.log(result);
+			var rows = result.rows, i;
+			var len = rows.length
+			console.log('unionAll');
+			for(i = 0; i < len; i++){
+				console.log(rows[i]);
+			}
+		});
+	})
+}
